@@ -1,0 +1,13 @@
+{
+  "name": "devops-jenkins-demo",
+  "version": "1.0.0",
+  "description": "Simple app for Jenkins CI/CD",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo 'Running unit tests...' && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
