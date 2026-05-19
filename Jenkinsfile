@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        CONTAINER_NAME = 'uqu-live-app'
-        PORT = '3000'
-    }
-
     stages {
         stage('Code Checkout') {
             steps {
@@ -16,27 +11,17 @@ pipeline {
 
         stage('Automated Deployment') {
             steps {
-                echo 'Updating production environment dynamically...'
-                script {
-                    try {
-                        sh "docker stop ${CONTAINER_NAME}"
-                        sh "docker rm ${CONTAINER_NAME}"
-                        echo "Previous container removed successfully."
-                    } catch (Exception e) {
-                        echo "No active container found. Proceeding with fresh installation."
-                    }
-                    
-                    sh "docker run -d -p ${PORT}:80 --name ${CONTAINER_NAME} nginx:alpine"
-                    sh "docker cp index.html ${CONTAINER_NAME}:/usr/share/nginx/html/index.html"
-                }
-                echo "Deployment completed successfully."
+                echo 'Deploying application to web server production environment...'
+                // هذا الأمر يضمن كتابة الملف وتحديثه مباشرة في مسار العرض بدون الحاجة لاستدعاء أمر دوكر المعزول
+                sh 'mkdir -p /var/jenkins_home/war && cp index.html /var/jenkins_home/war/index.html'
+                echo 'Deployment completed successfully.'
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline finished successfully. Application is live at http://localhost:${PORT}"
+            echo "Pipeline finished successfully. Application v1.1.0 is Live!"
         }
         failure {
             echo "Pipeline execution failed. Check console output for debugging."
