@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Pull Code') {
             steps {
-                echo '🚀 Pulling latest code from GitHub...'
+                echo '🚀 Pulling latest code from GitHub..2.'
             }
         }
         
