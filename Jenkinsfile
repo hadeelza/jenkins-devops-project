@@ -1,43 +1,45 @@
 pipeline {
     agent any
 
+    environment {
+        CONTAINER_NAME = 'uqu-live-app'
+        PORT = '3000'
+    }
+
     stages {
-        stage('Pull Code') {
+        stage('Code Checkout') {
             steps {
-                echo '🚀 Pulling latest code from GitHub..2.'
+                echo 'Pulling latest source code from Git repository...'
+                checkout scm
             }
         }
-        
-        stage('Install Dependencies') {
+
+        stage('Automated Deployment') {
             steps {
-                echo '📦 Installing Node.js packages...'
-                 echo 'Environment is ready.'
+                echo 'Updating production environment dynamically...'
+                script {
+                    try {
+                        sh "docker stop ${CONTAINER_NAME}"
+                        sh "docker rm ${CONTAINER_NAME}"
+                        echo "Previous container removed successfully."
+                    } catch (Exception e) {
+                        echo "No active container found. Proceeding with fresh installation."
+                    }
+                    
+                    sh "docker run -d -p ${PORT}:80 --name ${CONTAINER_NAME} nginx:alpine"
+                    sh "docker cp index.html ${CONTAINER_NAME}:/usr/share/nginx/html/index.html"
+                }
+                echo "Deployment completed successfully."
             }
         }
-        
-        stage('Run Tests') {
-            steps {
-                echo '🧪 Running Automated Unit Tests...'
-                echo 'All Unit Tests Passed Successfully!'
-            }
+    }
+
+    post {
+        success {
+            echo "Pipeline finished successfully. Application is live at http://localhost:${PORT}"
         }
-        
-        stage('Build & Package') {
-            steps {
-                echo '🏗️ Building Application Package...'
-                echo 'Application artifacts archived successfully.'
-            }
-        }
-        
-        stage('Deploy') {
-            steps {
-                echo '🌐 Deploying application to Production...'
-                  echo 'Starting web server on port 3000...'
-                
-                 sh 'nohup node app.js > output.log 2>&1 &'
-                
-                echo '🎉 Application is live at http://localhost:3000'
-            }
+        failure {
+            echo "Pipeline execution failed. Check console output for debugging."
         }
     }
 }
