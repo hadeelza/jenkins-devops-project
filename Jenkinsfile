@@ -11,9 +11,9 @@ pipeline {
 
         stage('Automated Deployment') {
             steps {
-                echo 'Deploying application to web server production environment...'
-                // نسخ الملف مباشرة إلى المجلد الرئيسي المشترك لسهولة قراءته
-                sh 'cp index.html /var/jenkins_home/index.html'
+                echo 'Deploying application dynamically to Nginx container...'
+                // هذا السطر السحري يفرغ محتوى الملف القديم ويحقن الكود الجديد داخل السيرفر تلقائياً
+                sh 'docker exec -u root uqu-live-app sh -c "cat /var/jenkins_home/workspace/uqu-pipeline/index.html > /usr/share/nginx/html/index.html"'
                 echo 'Deployment completed successfully.'
             }
         }
@@ -21,7 +21,7 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline finished successfully. Application is Live!"
+            echo "Pipeline finished successfully. Application is dynamically updated!"
         }
         failure {
             echo "Pipeline execution failed."
