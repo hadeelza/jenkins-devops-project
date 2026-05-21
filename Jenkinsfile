@@ -154,21 +154,9 @@ pipeline {
         }
         success {
             echo '✅ Pipeline Finished Successfully. All stages passed!'
-            script {
-                // Send notification (example)
-                // emailext subject: "Jenkins Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                //          body: "Build successful. View at ${env.BUILD_URL}",
-                //          to: "team@example.com"
-            }
         }
         failure {
             echo '❌ Pipeline Failed. Check the logs above to find the bug!'
-            script {
-                // Send notification (example)
-                // emailext subject: "Jenkins Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                //          body: "Build failed. View at ${env.BUILD_URL}",
-                //          to: "team@example.com"
-            }
         }
         unstable {
             echo '⚠️ Pipeline Unstable. Some tests may have failed.'
