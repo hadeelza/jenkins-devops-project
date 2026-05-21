@@ -97,7 +97,7 @@ pipeline {
                 echo '🔍 Verifying deployment...'
                 script {
                     def response = sh(
-                        script: "curl -f http://localhost:${PORT}/health || exit 1",
+                        script: "curl -f http://host.docker.internal:${PORT}/health || exit 1",
                         returnStatus: true
                     )
                     if (response != 0) {
@@ -114,9 +114,9 @@ pipeline {
             steps {
                 echo '🧪 Running smoke tests on deployed application...'
                 script {
-                    sh "curl -f http://localhost:${PORT}/ > /dev/null"
-                    sh "curl -f http://localhost:${PORT}/api/system-info > /dev/null"
-                    sh "curl -f http://localhost:${PORT}/health > /dev/null"
+                    sh "curl -f http://host.docker.internal:${PORT}/ > /dev/null"
+                    sh "curl -f http://host.docker.internal:${PORT}/api/system-info > /dev/null"
+                    sh "curl -f http://host.docker.internal:${PORT}/health > /dev/null"
                     echo '✅ All smoke tests passed!'
                 }
             }
