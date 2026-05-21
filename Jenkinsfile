@@ -63,10 +63,7 @@ pipeline {
         stage('4. Build Docker Image') {
             steps {
                 echo '🐳 Building Production Docker Image...'
-                script {
-                    dockerImage = docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}", ".")
-                    dockerImage.tag("${IMAGE_NAME}:latest")
-                }
+                sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
             }
         }
         
