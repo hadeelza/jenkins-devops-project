@@ -41,7 +41,7 @@ pipeline {
         stage('2. Install Dependencies') {
             steps {
                 echo '📦 Installing application dependencies...'
-                sh 'npm install'
+                sh 'npm install --include=dev'
             }
         }
         
@@ -56,21 +56,6 @@ pipeline {
                         echo '❌ Tests failed! Stopping pipeline.'
                         error('Unit tests failed. Pipeline aborted.')
                     }
-                }
-            }
-            post {
-                always {
-                    // Publish test results if available
-                    junit '**/test-results/junit.xml'
-                    // Publish coverage report if available
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report'
-                    ])
                 }
             }
         }
