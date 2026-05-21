@@ -69,14 +69,8 @@ pipeline {
         
         stage('5. Security Scan') {
             steps {
-                echo '🔒 Running security scan on Docker image...'
-                script {
-                    try {
-                        sh "docker scan ${IMAGE_NAME}:${env.BUILD_NUMBER} || true"
-                    } catch (Exception e) {
-                        echo '⚠️ Security scan failed or not available, continuing...'
-                    }
-                }
+                echo '🔒 Skipping security scan (docker scan not available in this environment)'
+                echo 'ℹ️ In production, consider using Docker Scout or Trivy for security scanning'
             }
         }
         
@@ -98,7 +92,7 @@ pipeline {
                 sh "docker run -d -p ${PORT}:3000 --name ${CONTAINER_NAME} --restart unless-stopped ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 
                 echo '⏳ Waiting for application to be healthy...'
-                sleep(10)
+                sleep(20)
                 
                 echo '🔍 Verifying deployment...'
                 script {
