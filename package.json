@@ -1,13 +1,32 @@
 {
-  "name": "devops-jenkins-demo",
-  "version": "1.0.0",
-  "description": "Simple app for Jenkins CI/CD",
-  "main": "app.js",
+  "name": "uqu-devops-production-app",
+  "version": "2.0.0",
+  "description": "Enterprise CI/CD DevOps Project for UQU - Production Grade",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "echo 'Running unit tests...' && exit 0"
+    "start": "node src/app.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.js"
   },
+  "keywords": [
+    "devops",
+    "cicd",
+    "jenkins",
+    "docker",
+    "nodejs"
+  ],
+  "author": "UQU DevOps Team",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

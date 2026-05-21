@@ -3,59 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UQU DevOps Automation Project</title>
+    <title>UQU DevOps CI/CD Dashboard</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            margin: 0;
-            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
             text-align: center;
         }
-        .card {
-            background: white;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-top: 8px solid #8C1D40;
-        }
-        h1 {
+        
+        .header h1 {
             color: #8C1D40;
-            margin-bottom: 15px;
-            font-size: 26px;
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
-        p {
-            color: #64748b;
-            font-size: 16px;
-            line-height: 1.6;
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
         }
+        
         .status-badge {
             display: inline-block;
-            padding: 8px 16px;
-            background-color: #10b981;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            border-radius: 20px;
+            border-radius: 25px;
             font-weight: bold;
             margin-top: 15px;
-            font-size: 14px;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h3 {
+            color: #8C1D40;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-icon {
+            font-size: 1.5em;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .metric-value.success {
+            color: #10b981;
+        }
+        
+        .metric-value.warning {
+            color: #f59e0b;
+        }
+        
+        .metric-value.danger {
+            color: #ef4444;
+        }
+        
+        .pipeline-stages {
+            margin-top: 15px;
+        }
+        
+        .stage {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .stage.failed {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .stage-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .stage-duration {
+            color: #666;
+            font-size: 0.9em;
+            margin-right: 15px;
+        }
+        
+        .stage-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            background: #10b981;
+            color: white;
+        }
+        
+        .stage.failed .stage-status {
+            background: #ef4444;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fef2f2;
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ef4444;
+        }
+        
         .version {
-            color: #94a3b8;
-            font-size: 13px;
-            margin-top: 25px;
-            font-family: monospace;
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>UQU Automated Deployment System</h1>
-        <p>This enterprise web application was automatically fetched, tested, compiled, and deployed using a structured Jenkins CI/CD pipeline and Docker containers.</p>
-        <div class="status-badge">SYSTEM STATUS: LIVE</div>
-        <div class="version">Build Version: v2.0.0</div>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 UQU DevOps CI/CD Dashboard</h1>
+            <p>Enterprise Continuous Integration & Deployment System</p>
+            <div class="status-badge pulse" id="systemStatus">SYSTEM STATUS: CHECKING...</div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3><span class="card-icon">📊</span> Pipeline Status</h3>
+                <div id="pipelineStatus">
+                    <div class="loading">Loading pipeline data...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span class="card-icon">📈</span> Deployment Metrics</h3>
+                <div id="metrics">
+                    <div class="loading">Loading metrics...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span class="card-icon">🧪</span> Test Results</h3>
+                <div id="testResults">
+                    <div class="loading">Loading test results...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span class="card-icon">ℹ️</span> System Information</h3>
+                <div id="systemInfo">
+                    <div class="loading">Loading system info...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span class="card-icon">🔧</span> Build Information</h3>
+                <div id="buildInfo">
+                    <div class="loading">Loading build info...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span class="card-icon">💚</span> Health Check</h3>
+                <div id="healthCheck">
+                    <div class="loading">Checking health...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh Dashboard</button>
+        </div>
+        
+        <div class="version">
+            Build Version: v2.0.0 | Powered by Jenkins & Docker
+        </div>
     </div>
+    
+    <script>
+        async function fetchAPI(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                return null;
+            }
+        }
+        
+        async function loadPipelineStatus() {
+            const data = await fetchAPI('/api/pipeline-status');
+            const container = document.getElementById('pipelineStatus');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Failed to load pipeline status</div>';
+                return;
+            }
+            
+            let html = '<div class="pipeline-stages">';
+            data.stages.forEach(stage => {
+                const failedClass = stage.status === 'failed' ? 'failed' : '';
+                html += `
+                    <div class="stage ${failedClass}">
+                        <span class="stage-name">${stage.name}</span>
+                        <span class="stage-duration">${stage.duration}</span>
+                        <span class="stage-status">${stage.status.toUpperCase()}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            html += `<div class="metric"><span class="metric-label">Total Duration:</span><span class="metric-value">${data.totalDuration}</span></div>`;
+            html += `<div class="metric"><span class="metric-label">Overall Status:</span><span class="metric-value ${data.overallStatus === 'success' ? 'success' : 'danger'}">${data.overallStatus.toUpperCase()}</span></div>`;
+            
+            container.innerHTML = html;
+        }
+        
+        async function loadMetrics() {
+            const data = await fetchAPI('/api/metrics');
+            const container = document.getElementById('metrics');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Failed to load metrics</div>';
+                return;
+            }
+            
+            const successRate = ((data.successfulDeployments / data.totalDeployments) * 100).toFixed(1);
+            
+            container.innerHTML = `
+                <div class="metric"><span class="metric-label">Total Deployments:</span><span class="metric-value">${data.totalDeployments}</span></div>
+                <div class="metric"><span class="metric-label">Successful:</span><span class="metric-value success">${data.successfulDeployments}</span></div>
+                <div class="metric"><span class="metric-label">Failed:</span><span class="metric-value ${data.failedDeployments > 0 ? 'danger' : 'success'}">${data.failedDeployments}</span></div>
+                <div class="metric"><span class="metric-label">Success Rate:</span><span class="metric-value success">${successRate}%</span></div>
+                <div class="metric"><span class="metric-label">Avg Build Time:</span><span class="metric-value">${data.averageBuildTime}</span></div>
+                <div class="metric"><span class="metric-label">Uptime:</span><span class="metric-value success">${data.uptime}</span></div>
+            `;
+        }
+        
+        async function loadTestResults() {
+            const data = await fetchAPI('/api/test-results');
+            const container = document.getElementById('testResults');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Failed to load test results</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="metric"><span class="metric-label">Total Tests:</span><span class="metric-value">${data.totalTests}</span></div>
+                <div class="metric"><span class="metric-label">Passed:</span><span class="metric-value success">${data.passed}</span></div>
+                <div class="metric"><span class="metric-label">Failed:</span><span class="metric-value ${data.failed > 0 ? 'danger' : 'success'}">${data.failed}</span></div>
+                <div class="metric"><span class="metric-label">Skipped:</span><span class="metric-value warning">${data.skipped}</span></div>
+                <div class="metric"><span class="metric-label">Coverage:</span><span class="metric-value success">${data.coverage}</span></div>
+                <div class="metric"><span class="metric-label">Duration:</span><span class="metric-value">${data.duration}</span></div>
+            `;
+        }
+        
+        async function loadSystemInfo() {
+            const data = await fetchAPI('/api/system-info');
+            const container = document.getElementById('systemInfo');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Failed to load system info</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="metric"><span class="metric-label">Project:</span><span class="metric-value">${data.project}</span></div>
+                <div class="metric"><span class="metric-label">Institution:</span><span class="metric-value">${data.institution}</span></div>
+                <div class="metric"><span class="metric-label">Engine:</span><span class="metric-value">${data.engine}</span></div>
+                <div class="metric"><span class="metric-label">Orchestration:</span><span class="metric-value">${data.orchestration}</span></div>
+                <div class="metric"><span class="metric-label">Environment:</span><span class="metric-value">${data.environment}</span></div>
+                <div class="metric"><span class="metric-label">Version:</span><span class="metric-value">${data.version}</span></div>
+            `;
+        }
+        
+        async function loadBuildInfo() {
+            const data = await fetchAPI('/api/build-info');
+            const container = document.getElementById('buildInfo');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Failed to load build info</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="metric"><span class="metric-label">Build Number:</span><span class="metric-value">#${data.buildNumber}</span></div>
+                <div class="metric"><span class="metric-label">Build ID:</span><span class="metric-value">${data.buildId}</span></div>
+                <div class="metric"><span class="metric-label">Branch:</span><span class="metric-value">${data.branch}</span></div>
+                <div class="metric"><span class="metric-label">Commit:</span><span class="metric-value">${data.commit.substring(0, 7)}</span></div>
+                <div class="metric"><span class="metric-label">Jenkins URL:</span><span class="metric-value">${data.jenkinsUrl}</span></div>
+            `;
+        }
+        
+        async function loadHealthCheck() {
+            const data = await fetchAPI('/health');
+            const container = document.getElementById('healthCheck');
+            const statusBadge = document.getElementById('systemStatus');
+            
+            if (!data) {
+                container.innerHTML = '<div class="error">Health check failed</div>';
+                statusBadge.textContent = 'SYSTEM STATUS: UNHEALTHY';
+                statusBadge.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                return;
+            }
+            
+            const uptime = Math.floor(data.uptime);
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const seconds = uptime % 60;
+            
+            container.innerHTML = `
+                <div class="metric"><span class="metric-label">Status:</span><span class="metric-value success">${data.status.toUpperCase()}</span></div>
+                <div class="metric"><span class="metric-label">Uptime:</span><span class="metric-value">${hours}h ${minutes}m ${seconds}s</span></div>
+                <div class="metric"><span class="metric-label">Timestamp:</span><span class="metric-value">${new Date(data.timestamp).toLocaleString()}</span></div>
+            `;
+            
+            statusBadge.textContent = 'SYSTEM STATUS: HEALTHY';
+            statusBadge.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        }
+        
+        async function refreshDashboard() {
+            document.querySelectorAll('.loading').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('#pipelineStatus > div:not(.loading)').forEach(el => el.style.display = 'none');
+            
+            await Promise.all([
+                loadPipelineStatus(),
+                loadMetrics(),
+                loadTestResults(),
+                loadSystemInfo(),
+                loadBuildInfo(),
+                loadHealthCheck()
+            ]);
+        }
+        
+        // Load dashboard on page load
+        document.addEventListener('DOMContentLoaded', refreshDashboard);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDashboard, 30000);
+    </script>
 </body>
 </html>
